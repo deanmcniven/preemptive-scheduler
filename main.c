@@ -1,14 +1,14 @@
 /*
- * CooperativeScheduler.c
+ * Preemptive Scheduler
  *
- * Created: 5/2/2016 12:02:40 AM
+ * Created: 17/5/2016 07:17:40 AM
  * Author : Dean McNiven
  */
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "stdio.h"
 
-#include "coop_sched.h"
+#include "preempt_sched.h"
 
 void setupHardware(void);
 void yield(uint8_t pid, uint32_t numTicks);

@@ -1,6 +1,6 @@
 SOURCES=main.c
 OBJECTS=$(SOURCES:.c=.o)
-EXECUTABLE=coop-sched
+EXECUTABLE=preempt-sched
 
 CC=avr-gcc
 CFLAGS=-Wall -Os -Werror -Wextra

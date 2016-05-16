@@ -1,5 +1,5 @@
-#ifndef _COOP_SCHED_H_
-#define _COOP_SCHED_H_
+#ifndef _PREEMPT_SCHED_H_
+#define _PREEMPT_SCHED_H_
 
 typedef void (*task_fn_t)(uint8_t pid);
 

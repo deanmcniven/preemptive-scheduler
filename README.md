@@ -1,3 +1,3 @@
-#Co-Operative Scheduler
+#Preemptive Scheduler
 
-Simple PoC Co-Operative scheduler for an Atmel atMega168a
+Simple PoC Pre-emptive scheduler for an Atmel atMega168a
