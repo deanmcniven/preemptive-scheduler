@@ -1,9 +1,10 @@
-SOURCES=main.c
+SOURCES=main.c display.c
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=preempt-sched
 
 CC=avr-gcc
 CFLAGS=-Wall -Os -Werror -Wextra
+PFLAGS?=
 AVRTYPE=atmega168a
 
 all: $(SOURCES) $(EXECUTABLE) hex
@@ -12,7 +13,7 @@ clean:
 	rm -f *.o *.elf *.lst *.hex *.decompiled
 
 .c.o:
-	$(CC) $(CFLAGS) -mmcu=$(AVRTYPE) -Wa,-ahlmns=$(EXECUTABLE).lst -c $< -o $@
+	$(CC) $(CFLAGS) $(PFLAGS) -mmcu=$(AVRTYPE) -Wa,-ahlmns=$(EXECUTABLE).lst -c $< -o $@
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) -mmcu=$(AVRTYPE) $(OBJECTS) -o $@.elf
