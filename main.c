@@ -41,7 +41,7 @@ int main()
 {
     cli();
     setup_timer();
-    setupDisplay();
+    setup_display();
     sei();
 
     while (1) {
