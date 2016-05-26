@@ -1,7 +1,7 @@
 #ifndef _PREEMPT_SCHED_H_
 #define _PREEMPT_SCHED_H_ 1
 
-typedef void (*task_fn_t)(uint8_t pid);
+typedef void (*task_fn_t)(void);
 
 typedef enum {
     RUNNABLE = 1,
