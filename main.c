@@ -12,35 +12,35 @@
 #include "preempt_sched.h"
 #include "display.h"
 
-void setupTimer(void);
-void taskOne(void);
-void taskTwo(void);
-void taskThree(void);
+void setup_timer(void);
+void task_one(void);
+void task_two(void);
+void task_three(void);
 
 #define NUM_TASKS 3
-volatile task_t Tasks[NUM_TASKS] = {
+volatile task_t tasks[NUM_TASKS] = {
     {
-        taskOne,
+        task_one,
         RUNNABLE,
         0, 0
     }, {
-        taskTwo,
+        task_two,
         RUNNABLE,
         0, 0
     }, {
-        taskThree,
+        task_three,
         RUNNABLE,
         0, 0
     }
 };
 
-volatile uint8_t currentTask = 0;
+volatile uint8_t current_task = 0;
 volatile uint32_t ticks = 0;
 
 int main()
 {
     cli();
-    setupTimer();
+    setup_timer();
     setupDisplay();
     sei();
 
@@ -49,7 +49,7 @@ int main()
     }
 }
 
-void setupTimer()
+void setup_timer()
 {
     //Setup Ticks generation
     ASSR = 0x00;    //Timer2: Internal Clock
@@ -63,26 +63,26 @@ ISR(TIMER2_COMPA_vect) {
     uint8_t sReg = SREG;
     ticks++;
 
-    (*Tasks[currentTask].entry)();
-    currentTask++;
-    if (currentTask >= NUM_TASKS) currentTask = 0;
+    (*tasks[current_task].entry)();
+    current_task++;
+    if (current_task >= NUM_TASKS) current_task = 0;
 
     SREG = sReg;
 }
 
-void taskOne() {
+void task_one() {
     while (1) {
         LED = (LED ^ LED1_MASK);
     }
 }
 
-void taskTwo() {
+void task_two() {
     while (1) {
         LED = (LED ^ LED0_MASK);
     }
 }
 
-void taskThree() {
+void task_three() {
     uint8_t count_h = 0;
     uint8_t count_l = 0;
 

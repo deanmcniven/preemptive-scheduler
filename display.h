@@ -25,6 +25,6 @@
 #define LED1_MASK   0x02
 #define LED0_MASK   0x01
 
-void setupDisplay(void);
+void setup_display(void);
 
 #endif
