@@ -1,4 +1,4 @@
-SOURCES=main.c display.c
+SOURCES=main.c display.c stack_init.S
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=preempt-sched
 
