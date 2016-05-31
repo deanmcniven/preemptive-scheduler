@@ -13,7 +13,7 @@ clean:
 	rm -f *.o *.elf *.lst *.hex *.decompiled
 
 .c.o:
-	$(CC) $(CFLAGS) $(PFLAGS) -mmcu=$(AVRTYPE) -Wa,-ahlmns=$(EXECUTABLE).lst -c $< -o $@
+	$(CC) $(CFLAGS) $(PFLAGS) -mmcu=$(AVRTYPE) -Wa,-ahlmns=$(@:.o=).lst -c $< -o $@
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) -mmcu=$(AVRTYPE) $(OBJECTS) -o $@.elf
