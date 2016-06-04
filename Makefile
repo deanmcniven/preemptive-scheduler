@@ -1,9 +1,9 @@
-SOURCES=main.c display.c
+SOURCES=main.c display.c preempt_sched.c
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=preempt-sched
 
 CC=avr-gcc
-CFLAGS=-Wall -Os -Werror -Wextra
+CFLAGS=-Wall -Os -Werror -Wextra -std=c99
 PFLAGS?=
 AVRTYPE=atmega168a
 

@@ -1,19 +1,48 @@
+/*
+* Pre-Emption code based heavily on the tutorial available at:
+* http://kevincuzner.com/2015/12/31/writing-a-preemptive-task-scheduler-for-avr/
+*/
 #ifndef _PREEMPT_SCHED_H_
 #define _PREEMPT_SCHED_H_ 1
 
-typedef void (*task_fn_t)(void);
+#include <avr/io.h>
+#include <util/atomic.h>
+
+#include "scheduler_settings.h"
+
+typedef void (*process_fn_t)(void);
 
 typedef enum {
     RUNNABLE = 1,
-    HALT = 2,
-    WAIT = 3
-} task_state_t;
+    HALT,
+    WAIT
+} process_state_t;
 
 typedef struct {
-    task_fn_t     entry;
-    task_state_t  state;
-    uint32_t      wait_ticks;
-    uint8_t       tick_roll;
-} task_t;
+    void *sp;
+    process_state_t state;
+    struct process_t *next;
+    void *status_pointer;
+} process_t;
+
+extern process_t *current_process;
+
+void isr_enter(void);
+void isr_exit(void);
+
+#ifdef SEMAPHORE
+typedef struct {
+    int8_t value;
+} semaphore_t;
+
+semaphore_t *semaphore_init(int8_t value);
+void semaphore_post(semaphore_t *semaphore);
+void semaphore_pend(semaphore_t *semaphore);
+#endif
+
+void scheduler_init(void);
+void add_process(process_fn_t process, void *stack_ptr);
+void schedule(void);
+void process_dispatch(process_t *process);
 
 #endif

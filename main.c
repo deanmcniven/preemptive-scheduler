@@ -13,40 +13,40 @@
 #include "display.h"
 
 void setup_timer(void);
+
+static semaphore_t *sem_task_one;
+static uint8_t task_one_stack[PROCESS_STACK_SIZE];
 void task_one(void);
+
+static semaphore_t *sem_task_two;
+static uint8_t task_two_stack[PROCESS_STACK_SIZE];
 void task_two(void);
+
+static semaphore_t *sem_task_three;
+static uint8_t task_three_stack[PROCESS_STACK_SIZE];
 void task_three(void);
 
-#define NUM_TASKS 3
-volatile task_t tasks[NUM_TASKS] = {
-    {
-        task_one,
-        RUNNABLE,
-        0, 0
-    }, {
-        task_two,
-        RUNNABLE,
-        0, 0
-    }, {
-        task_three,
-        RUNNABLE,
-        0, 0
-    }
-};
-
-volatile uint8_t current_task = 0;
-volatile uint32_t ticks = 0;
 
 int main()
 {
     cli();
     setup_timer();
     setup_display();
+    scheduler_init();
+
+    sem_task_one = semaphore_init(0);
+    sem_task_two = semaphore_init(1);
+    sem_task_three = semaphore_init(2);
+
+    add_process(&task_three, &task_three_stack[PROCESS_STACK_SIZE - 1]);
+    add_process(&task_two, &task_two_stack[PROCESS_STACK_SIZE - 1]);
+    add_process(&task_one, &task_one_stack[PROCESS_STACK_SIZE - 1]);
     sei();
 
-    while (1) {
-        //Should never be here
-    }
+    schedule();
+
+    while (1) { /* Should never be here */ }
+    return 0;
 }
 
 void setup_timer()
@@ -60,24 +60,23 @@ void setup_timer()
 }
 
 ISR(TIMER2_COMPA_vect) {
-    uint8_t sReg = SREG;
-    ticks++;
-
-    (*tasks[current_task].entry)();
-    current_task++;
-    if (current_task >= NUM_TASKS) current_task = 0;
-
-    SREG = sReg;
+    isr_enter();
+    semaphore_post(sem_task_one);
+    semaphore_post(sem_task_two);
+    semaphore_post(sem_task_three);
+    isr_exit();
 }
 
 void task_one() {
     while (1) {
+        semaphore_pend(sem_task_one);
         LED = (LED ^ LED1_MASK);
     }
 }
 
 void task_two() {
     while (1) {
+        semaphore_pend(sem_task_two);
         LED = (LED ^ LED0_MASK);
     }
 }
@@ -87,6 +86,8 @@ void task_three() {
     uint8_t count_l = 0;
 
     while (1) {
+        semaphore_pend(sem_task_three);
+
         BCD = (count_h << BCD_OFFSET) | (1 << BCD_L_MSD);
         BCD = (count_l << BCD_OFFSET) | (1 << BCD_L_LSD);
         BCD = BCD_BLANK;

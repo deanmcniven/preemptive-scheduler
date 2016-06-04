@@ -1,6 +1,7 @@
 #Preemptive Scheduler
 
 Simple PoC Pre-emptive scheduler for an Atmel atMega168a
+Pre-emption code based this tutorial: http://kevincuzner.com/2015/12/31/writing-a-preemptive-task-scheduler-for-avr/
 
 
 #Display Shield
