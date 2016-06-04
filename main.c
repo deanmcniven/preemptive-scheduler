@@ -26,6 +26,7 @@ static semaphore_t *sem_task_three;
 static uint8_t task_three_stack[PROCESS_STACK_SIZE];
 void task_three(void);
 
+volatile uint32_t ticks = 0;
 
 int main()
 {
@@ -60,6 +61,10 @@ void setup_timer()
 }
 
 ISR(TIMER2_COMPA_vect) {
+    uint8_t sreg = SREG;
+    ticks++;
+    SREG = sreg;
+
     isr_enter();
     semaphore_post(sem_task_one);
     semaphore_post(sem_task_two);
@@ -69,15 +74,23 @@ ISR(TIMER2_COMPA_vect) {
 
 void task_one() {
     while (1) {
-        semaphore_pend(sem_task_one);
         LED = (LED ^ LED1_MASK);
+
+        uint32_t wait_until = ticks + 25;
+        while (ticks != wait_until) {
+            semaphore_pend(sem_task_one);
+        };
     }
 }
 
 void task_two() {
     while (1) {
-        semaphore_pend(sem_task_two);
         LED = (LED ^ LED0_MASK);
+
+        uint32_t wait_until = ticks + 100;
+        while (ticks != wait_until) {
+            semaphore_pend(sem_task_two);
+        };
     }
 }
 
@@ -86,8 +99,6 @@ void task_three() {
     uint8_t count_l = 0;
 
     while (1) {
-        semaphore_pend(sem_task_three);
-
         BCD = (count_h << BCD_OFFSET) | (1 << BCD_L_MSD);
         BCD = (count_l << BCD_OFFSET) | (1 << BCD_L_LSD);
         BCD = BCD_BLANK;
@@ -98,5 +109,10 @@ void task_three() {
             count_h++;
         }
         if (count_h >= 10) count_h = 0;
+
+        uint32_t wait_until = ticks + 50;
+        while (ticks != wait_until) {
+            semaphore_pend(sem_task_three);
+        };
     }
 }
