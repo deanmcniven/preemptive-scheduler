@@ -14,7 +14,6 @@ typedef void (*process_fn_t)(void);
 
 typedef enum {
     RUNNABLE = 1,
-    HALT,
     WAIT
 } process_state_t;
 
@@ -25,20 +24,18 @@ typedef struct {
     void *status_pointer;
 } process_t;
 
+typedef struct {
+    int8_t value;
+} semaphore_t;
+
 extern process_t *current_process;
 
 void isr_enter(void);
 void isr_exit(void);
 
-#ifdef SEMAPHORE
-typedef struct {
-    int8_t value;
-} semaphore_t;
-
 semaphore_t *semaphore_init(int8_t value);
 void semaphore_post(semaphore_t *semaphore);
 void semaphore_pend(semaphore_t *semaphore);
-#endif
 
 void scheduler_init(void);
 void add_process(process_fn_t process, void *stack_ptr);

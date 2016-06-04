@@ -17,7 +17,6 @@ void isr_exit(void) {
     schedule();
 }
 
-#ifdef SEMAPHORE
 static semaphore_t semaphores[MAX_SEMAPHORES+1];
 static uint8_t next_semaphore = 0;
 
@@ -60,7 +59,6 @@ void semaphore_pend(semaphore_t *semaphore) {
         }
     }
 }
-#endif
 
 void scheduler_init() {
     add_process(&nop_process, &nop_process_stack[PROCESS_STACK_SIZE - 1]);

@@ -35,8 +35,8 @@ int main()
     scheduler_init();
 
     sem_task_one = semaphore_init(0);
-    sem_task_two = semaphore_init(1);
-    sem_task_three = semaphore_init(2);
+    sem_task_two = semaphore_init(0);
+    sem_task_three = semaphore_init(0);
 
     add_process(&task_three, &task_three_stack[PROCESS_STACK_SIZE - 1]);
     add_process(&task_two, &task_two_stack[PROCESS_STACK_SIZE - 1]);

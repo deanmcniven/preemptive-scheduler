@@ -12,7 +12,6 @@
 
 #define MAX_NUM_PROCESS 3
 
-#define SEMAPHORE
 #define MAX_SEMAPHORES 3
 
 #endif
