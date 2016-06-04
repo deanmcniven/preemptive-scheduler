@@ -89,7 +89,11 @@ void task_two() {
 
         uint32_t wait_until = ticks + 100;
         while (ticks != wait_until) {
+#ifdef GREEDY_TASK
+            __asm__ __volatile__ ("nop \n\t");
+#else
             semaphore_pend(sem_task_two);
+#endif
         };
     }
 }
