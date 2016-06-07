@@ -3,11 +3,14 @@ OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=preempt-sched
 
 CC=avr-gcc
-CFLAGS=-Wall -Os -Werror -Wextra -std=c99
+CFLAGS=-g -Wall -Os -Werror -Wextra -std=c99
 PFLAGS?=
 AVRTYPE=atmega168a
 
 all: $(SOURCES) $(EXECUTABLE) hex
+
+debug: CFLAGS += -DDEBUG -g
+debug: hex
 
 clean:
 	rm -f *.o *.elf *.lst *.hex *.decompiled

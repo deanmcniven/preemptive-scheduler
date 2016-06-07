@@ -15,5 +15,14 @@ BCD Common address bus = PORTD7-4
 BCD LatchEn MSD = PORTD3
 BCD LatchEn LSD = PORTD2
 
+#Attaching to simulator
+Run avr-gdb
+Then run:
+- file preempt-sched.elf
+- target remote localhost:8282
+- load
+- break main
+- continue
+
 #Introducting Delays
 Run 'make clean all PFLAGS=-DGREEDY_TASK' to add delays into a task to demonstrate benefits of a preemptive system.
