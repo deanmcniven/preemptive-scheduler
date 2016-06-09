@@ -14,15 +14,12 @@
 
 void setup_timer(void);
 
-static semaphore_t *sem_task_one;
 static uint8_t task_one_stack[PROCESS_STACK_SIZE];
 void task_one(void);
 
-static semaphore_t *sem_task_two;
 static uint8_t task_two_stack[PROCESS_STACK_SIZE];
 void task_two(void);
 
-static semaphore_t *sem_task_three;
 static uint8_t task_three_stack[PROCESS_STACK_SIZE];
 void task_three(void);
 
@@ -33,15 +30,11 @@ int main()
     cli();
     setup_timer();
     setup_display();
-    scheduler_init();
-
-    sem_task_one = semaphore_init(0);
-    sem_task_two = semaphore_init(0);
-    sem_task_three = semaphore_init(0);
 
     add_process(&task_three, &task_three_stack[PROCESS_STACK_SIZE - 1]);
     add_process(&task_two, &task_two_stack[PROCESS_STACK_SIZE - 1]);
     add_process(&task_one, &task_one_stack[PROCESS_STACK_SIZE - 1]);
+    scheduler_init();
     sei();
 
     schedule();
@@ -62,14 +55,10 @@ void setup_timer()
 
 ISR(TIMER2_COMPA_vect) {
     uint8_t sreg = SREG;
-    ticks++;
-    SREG = sreg;
-
     isr_enter();
-    semaphore_post(sem_task_one);
-    semaphore_post(sem_task_two);
-    semaphore_post(sem_task_three);
+    ticks++;
     isr_exit();
+    SREG = sreg;
 }
 
 void task_one() {
@@ -78,7 +67,7 @@ void task_one() {
 
         uint32_t wait_until = ticks + 25;
         while (ticks != wait_until) {
-            semaphore_pend(sem_task_one);
+            yield();
         };
     }
 }
@@ -89,11 +78,11 @@ void task_two() {
 
         uint32_t wait_until = ticks + 100;
         while (ticks != wait_until) {
-#ifdef GREEDY_TASK
-            __asm__ __volatile__ ("nop \n\t");
-#else
-            semaphore_pend(sem_task_two);
-#endif
+//#ifdef GREEDY_TASK
+//            __asm__ __volatile__ ("nop \n\t");
+//#else
+            yield();
+//#endif
         };
     }
 }
@@ -116,7 +105,7 @@ void task_three() {
 
         uint32_t wait_until = ticks + 50;
         while (ticks != wait_until) {
-            semaphore_pend(sem_task_three);
+            yield();
         };
     }
 }

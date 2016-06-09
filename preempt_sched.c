@@ -1,67 +1,18 @@
 #include "preempt_sched.h"
 
-//Array of process control blocks (Add one for idle process)
-static process_t pcbs[MAX_NUM_PROCESS + 1];
+//Array of process control blocks
+static process_t pcbs[MAX_NUM_PROCESS];
 static uint8_t next_process = 0;
 static process_t *process_ll_head;
 process_t *current_process;
 
-static uint8_t nop_process_stack[PROCESS_STACK_SIZE];
-static void nop_process(void) { while (1) {} }
-
-
 static uint8_t isr_level = 0;
 void isr_enter(void) { isr_level++; }
-void isr_exit(void) {
-    isr_level--;
-    schedule();
-}
+void isr_exit(void) { isr_level--; }
 
-static semaphore_t semaphores[MAX_SEMAPHORES+1];
-static uint8_t next_semaphore = 0;
-
-semaphore_t *semaphore_init(int8_t value) {
-    semaphore_t *s = &semaphores[next_semaphore++];
-    s->value = value;
-    return s;
-}
-
-void semaphore_post(semaphore_t *semaphore) {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        process_t *process;
-        semaphore->value++;
-
-        process = process_ll_head;
-        while (process)
-        {
-            if (process->state == WAIT && process->status_pointer == semaphore)
-                break; //this is the task to be restored
-            process = (void*)process->next;
-        }
-
-        process->state = RUNNABLE;
-        schedule();
-    }
-}
-
-void semaphore_pend(semaphore_t *semaphore) {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-        int8_t val = semaphore->value--; //val is value before decrement
-
-        if (val <= 0) {
-            //we need to wait on the semaphore
-            current_process->status_pointer = semaphore;
-            current_process->state = WAIT;
-
-            schedule();
-        }
-    }
-}
 
 void scheduler_init() {
-    add_process(&nop_process, &nop_process_stack[PROCESS_STACK_SIZE - 1]);
+    pcbs[0].next = (void*)process_ll_head;
 }
 
 void add_process(process_fn_t process, void *stack_ptr) {
@@ -94,10 +45,14 @@ void add_process(process_fn_t process, void *stack_ptr) {
     process_ll_head = pcb;
 }
 
+void yield() {
+    schedule();
+}
+
 void schedule() {
     if (isr_level) return;
 
-    process_t *process = process_ll_head;
+    process_t *process = (current_process) ? (void*)current_process->next : process_ll_head;
     while (process->state != RUNNABLE) process = (void*)process->next;
 
     if (process != current_process) {
