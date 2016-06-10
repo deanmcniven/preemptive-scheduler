@@ -3,7 +3,7 @@ OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=preempt-sched
 
 CC=avr-gcc
-CFLAGS=-g -Wall -Os -Werror -Wextra -std=c99
+CFLAGS=-Wall -Os -Werror -Wextra -std=c99
 PFLAGS?=
 AVRTYPE=atmega168a
 
