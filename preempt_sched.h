@@ -23,6 +23,7 @@ typedef struct {
     struct process_t *next;
 } process_t;
 
+static process_t *process_ll_head;
 extern process_t *current_process;
 
 void isr_enter(void);

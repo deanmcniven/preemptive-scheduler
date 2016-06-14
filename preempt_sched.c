@@ -3,15 +3,18 @@
 //Array of process control blocks
 static process_t pcbs[MAX_NUM_PROCESS];
 static uint8_t next_process = 0;
-static process_t *process_ll_head;
+//static process_t *process_ll_head;
 process_t *current_process;
 
 static uint8_t isr_level = 0;
 void isr_enter(void) { isr_level++; }
-void isr_exit(void) { isr_level--; }
-
+void isr_exit(void) {
+    isr_level--;
+    schedule();
+}
 
 void scheduler_init() {
+    //Adjust final pointer to create round-robin task list
     pcbs[0].next = (void*)process_ll_head;
 }
 

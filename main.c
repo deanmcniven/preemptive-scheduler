@@ -55,10 +55,16 @@ void setup_timer()
 
 ISR(TIMER2_COMPA_vect) {
     uint8_t sreg = SREG;
-    isr_enter();
+    //isr_enter();
     ticks++;
-    isr_exit();
     SREG = sreg;
+    //isr_exit();
+    process_t *process = (current_process) ? (void*)current_process->next : process_ll_head;
+    while (process->state != RUNNABLE) process = (void*)process->next;
+
+    if (process != current_process) {
+        process_dispatch(process);
+    }
 }
 
 void task_one() {
@@ -67,7 +73,7 @@ void task_one() {
 
         uint32_t wait_until = ticks + 25;
         while (ticks != wait_until) {
-            yield();
+            __asm__ __volatile__ ("nop \n\t");
         };
     }
 }
@@ -78,11 +84,7 @@ void task_two() {
 
         uint32_t wait_until = ticks + 100;
         while (ticks != wait_until) {
-//#ifdef GREEDY_TASK
-//            __asm__ __volatile__ ("nop \n\t");
-//#else
-            yield();
-//#endif
+            __asm__ __volatile__ ("nop \n\t");
         };
     }
 }
@@ -105,7 +107,7 @@ void task_three() {
 
         uint32_t wait_until = ticks + 50;
         while (ticks != wait_until) {
-            yield();
+            __asm__ __volatile__ ("nop \n\t");
         };
     }
 }
