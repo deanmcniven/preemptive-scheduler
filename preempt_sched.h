@@ -21,6 +21,7 @@ typedef struct {
     void *sp;
     process_state_t state;
     struct process_t *next;
+    volatile uint16_t wait_ticks;
 } process_t;
 
 extern process_t *current_process;
@@ -30,7 +31,10 @@ void isr_exit(void);
 
 void scheduler_init(void);
 void add_process(process_fn_t process, void *stack_ptr);
-void yield(void);
+void init_stack(process_fn_t process, void *stack_ptr, process_t *pcb);
 void schedule(void);
+
+void yield(uint16_t wait_ticks);
+void restore_processes(void);
 
 #endif

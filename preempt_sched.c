@@ -6,6 +6,14 @@ static uint8_t next_process = 0;
 static process_t *process_ll_head;
 process_t *current_process;
 
+static uint8_t nop_process_stack[PROCESS_STACK_SIZE];
+static process_t nop_process_pcb;
+void nop_process() {
+    while(1) {
+        __asm__ __volatile__ ("nop \t\n"::);
+    }
+};
+
 static uint8_t isr_level = 0;
 void isr_enter(void) { isr_level++; }
 void isr_exit(void) {
@@ -16,11 +24,26 @@ void isr_exit(void) {
 void scheduler_init() {
     //Adjust final pointer to create round-robin task list
     pcbs[0].next = (void*)process_ll_head;
+
+    //Init nop task
+    init_stack(&nop_process, &nop_process_stack[PROCESS_STACK_SIZE - 1], &nop_process_pcb);
+    nop_process_pcb.next = (void*)process_ll_head;
 }
 
 void add_process(process_fn_t process, void *stack_ptr) {
+    process_t *pcb = &pcbs[next_process++];
+
+    init_stack(process, stack_ptr, pcb);
+
+    //Add to task list
+    if (process_ll_head) {
+        pcb->next = (void*)process_ll_head;
+    }
+    process_ll_head = pcb;
+}
+
+void init_stack(process_fn_t process, void *stack_ptr, process_t *pcb) {
     uint8_t *stack = stack_ptr;
-    process_t *pcb;
 
     //Store PC
     //Note: count backwards as adding to stack goes up in memory
@@ -36,27 +59,25 @@ void add_process(process_fn_t process, void *stack_ptr) {
     //Init SREG
     stack[-34] = 0x80;
 
-    //Setup PCB
-    pcb = &pcbs[next_process++];
+    //Save PCB
     pcb->sp = stack - 35;
     pcb->state = RUNNABLE;
-    if (process_ll_head) {
-        pcb->next = (void*)process_ll_head;
-    }
-
-    //Add to head of task list
-    process_ll_head = pcb;
-}
-
-void yield() {
-    schedule();
 }
 
 void schedule() { //Note: Calling this fn already placed the PC to the stack
     if (isr_level) return;
 
+    uint8_t num_proc_checked = 0;
     process_t *process = (current_process) ? (void*)current_process->next : process_ll_head;
-    while (process->state != RUNNABLE) process = (void*)process->next;
+    while (process->state != RUNNABLE) {
+        process = (void*)process->next;
+
+        if (num_proc_checked > MAX_NUM_PROCESS) {
+            process = &nop_process_pcb;
+            break;
+        }
+        num_proc_checked++;
+    }
 
     if (process != current_process) {
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
@@ -162,5 +183,21 @@ void schedule() { //Note: Calling this fn already placed the PC to the stack
                     [_SPH_] "i" _SFR_IO_ADDR(SPH),
                     [_next_process_] "r" (process));
         }
+    }
+}
+
+void yield(uint16_t wait_ticks) {
+    current_process->state = WAIT;
+    current_process->wait_ticks = wait_ticks;
+
+    schedule();
+}
+
+void restore_processes(void) {
+    process_t *proc_ptr = process_ll_head;
+    while ((void*)proc_ptr->next != (void*)process_ll_head) {
+        if (proc_ptr->state == WAIT) proc_ptr->wait_ticks--;
+        if (proc_ptr->wait_ticks == 0) proc_ptr->state = RUNNABLE;
+        proc_ptr = (void*)proc_ptr->next;
     }
 }

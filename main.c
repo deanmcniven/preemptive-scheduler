@@ -23,8 +23,6 @@ void task_two(void);
 static uint8_t task_three_stack[PROCESS_STACK_SIZE];
 void task_three(void);
 
-volatile uint32_t ticks = 0;
-
 int main()
 {
     cli();
@@ -56,8 +54,9 @@ void setup_timer()
 ISR(TIMER2_COMPA_vect) {
     uint8_t sreg = SREG;
     //isr_enter();
-    ticks++;
+    restore_processes();
     SREG = sreg;
+
     //isr_exit();
     schedule();
 }
@@ -66,10 +65,7 @@ void task_one() {
     while (1) {
         LED = (LED ^ LED1_MASK);
 
-        uint32_t wait_until = ticks + 25;
-        while (ticks != wait_until) {
-            __asm__ __volatile__ ("nop \n\t");
-        };
+        yield(25);
     }
 }
 
@@ -77,10 +73,7 @@ void task_two() {
     while (1) {
         LED = (LED ^ LED0_MASK);
 
-        uint32_t wait_until = ticks + 100;
-        while (ticks != wait_until) {
-            __asm__ __volatile__ ("nop \n\t");
-        };
+        yield(100);
     }
 }
 
@@ -100,9 +93,6 @@ void task_three() {
         }
         if (count_h >= 10) count_h = 0;
 
-        uint32_t wait_until = ticks + 50;
-        while (ticks != wait_until) {
-            __asm__ __volatile__ ("nop \n\t");
-        };
+        yield(50);
     }
 }
