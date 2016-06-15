@@ -59,7 +59,8 @@ void reset_timer_interrupt()
     TIFR2 = 0x02;
 }
 
-ISR(TIMER2_COMPA_vect) {
+ISR(TIMER2_COMPA_vect)
+{
     uint8_t sreg = SREG;
     //isr_enter();
     restore_processes();
@@ -69,7 +70,8 @@ ISR(TIMER2_COMPA_vect) {
     schedule();
 }
 
-void task_one() {
+void task_one()
+{
     while (1) {
         LED = (LED ^ LED1_MASK);
 
@@ -77,7 +79,8 @@ void task_one() {
     }
 }
 
-void task_two() {
+void task_two()
+{
     while (1) {
         LED = (LED ^ LED0_MASK);
 
@@ -85,7 +88,8 @@ void task_two() {
     }
 }
 
-void task_three() {
+void task_three()
+{
     uint8_t count_h = 0;
     uint8_t count_l = 0;
 

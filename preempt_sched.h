@@ -32,9 +32,9 @@ void isr_exit(void);
 void scheduler_init(void);
 void add_process(process_fn_t process, void *stack_ptr);
 void init_stack(process_fn_t process, void *stack_ptr, process_t *pcb);
-void schedule(void);
 
 void yield(uint16_t wait_ticks);
 void restore_processes(void);
+void schedule(void);
 
 #endif

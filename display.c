@@ -1,6 +1,7 @@
 #include "display.h"
 
-void setup_display() {
+void setup_display()
+{
    DDRB = (1 << LED1) | (1 << LED0);
    DDRD = 0xFC;
 
