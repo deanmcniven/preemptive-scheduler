@@ -74,7 +74,7 @@ void init_stack(process_fn_t process, void *stack_ptr, process_t *pcb)
     pcb->state = RUNNABLE;
 }
 
-void yield(uint16_t wait_ticks)
+void sleep(uint16_t wait_ticks)
 {
     current_process->state = WAIT;
     current_process->wait_ticks = wait_ticks;

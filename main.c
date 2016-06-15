@@ -75,7 +75,7 @@ void task_one()
     while (1) {
         LED = (LED ^ LED1_MASK);
 
-        yield(25);
+        sleep(25);
     }
 }
 
@@ -84,7 +84,7 @@ void task_two()
     while (1) {
         LED = (LED ^ LED0_MASK);
 
-        yield(100);
+        sleep(100);
     }
 }
 
@@ -105,6 +105,6 @@ void task_three()
         }
         if (count_h >= 10) count_h = 0;
 
-        yield(50);
+        sleep(50);
     }
 }
