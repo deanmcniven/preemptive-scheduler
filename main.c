@@ -59,12 +59,7 @@ ISR(TIMER2_COMPA_vect) {
     ticks++;
     SREG = sreg;
     //isr_exit();
-    process_t *process = (current_process) ? (void*)current_process->next : process_ll_head;
-    while (process->state != RUNNABLE) process = (void*)process->next;
-
-    if (process != current_process) {
-        process_dispatch(process);
-    }
+    schedule();
 }
 
 void task_one() {

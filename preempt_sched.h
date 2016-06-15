@@ -23,7 +23,6 @@ typedef struct {
     struct process_t *next;
 } process_t;
 
-static process_t *process_ll_head;
 extern process_t *current_process;
 
 void isr_enter(void);
@@ -33,6 +32,5 @@ void scheduler_init(void);
 void add_process(process_fn_t process, void *stack_ptr);
 void yield(void);
 void schedule(void);
-void process_dispatch(process_t *process);
 
 #endif
