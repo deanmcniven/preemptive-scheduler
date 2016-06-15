@@ -13,6 +13,7 @@
 #include "display.h"
 
 void setup_timer(void);
+void reset_timer_interrupt(void);
 
 static uint8_t task_one_stack[PROCESS_STACK_SIZE];
 void task_one(void);
@@ -33,6 +34,8 @@ int main()
     add_process(&task_two, &task_two_stack[PROCESS_STACK_SIZE - 1]);
     add_process(&task_one, &task_one_stack[PROCESS_STACK_SIZE - 1]);
     scheduler_init();
+
+    reset_timer_interrupt();
     sei();
 
     schedule();
@@ -49,6 +52,11 @@ void setup_timer()
     TCCR2B = 0x07;  //Prescale: 1024
     OCR2A = 0x9C;   //Count: 156 (~10ms)
     TIMSK2 = 0x02;  //Enable Compare Interrupt
+}
+
+void reset_timer_interrupt()
+{
+    TIFR2 = 0x02;
 }
 
 ISR(TIMER2_COMPA_vect) {
