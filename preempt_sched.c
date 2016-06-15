@@ -194,8 +194,10 @@ void yield(uint16_t wait_ticks) {
 }
 
 void restore_processes(void) {
+    uint8_t num_proc_checked;
     process_t *proc_ptr = process_ll_head;
-    while ((void*)proc_ptr->next != (void*)process_ll_head) {
+
+    for(num_proc_checked = 0; num_proc_checked < MAX_NUM_PROCESS; num_proc_checked++) {
         if (proc_ptr->state == WAIT) proc_ptr->wait_ticks--;
         if (proc_ptr->wait_ticks == 0) proc_ptr->state = RUNNABLE;
         proc_ptr = (void*)proc_ptr->next;
