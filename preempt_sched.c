@@ -16,19 +16,6 @@ void nop_process()
     }
 }
 
-static uint8_t isr_level = 0;
-
-void isr_enter(void)
-{
-    isr_level++;
-}
-
-void isr_exit(void)
-{
-    isr_level--;
-    schedule();
-}
-
 void scheduler_init()
 {
     //Adjust final pointer to create round-robin task list
@@ -97,8 +84,8 @@ void restore_processes(void)
 void schedule()
 {
     //Note: Calling this fn already placed the PC to the stack
-    if (isr_level) return;
 
+    //Find next RUNNABLE process, if all are in WAIT state load the nop (idle) process
     uint8_t num_proc_checked = 0;
     process_t *process = (current_process) ? (void*)current_process->next : process_ll_head;
     while (process->state != RUNNABLE) {
@@ -111,6 +98,7 @@ void schedule()
         num_proc_checked++;
     }
 
+    //If the new process isn't the current process, dispatch
     if (process != current_process) {
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
             __asm__ __volatile__ (

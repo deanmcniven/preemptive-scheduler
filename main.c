@@ -62,11 +62,9 @@ void reset_timer_interrupt()
 ISR(TIMER2_COMPA_vect)
 {
     uint8_t sreg = SREG;
-    //isr_enter();
     restore_processes();
     SREG = sreg;
 
-    //isr_exit();
     schedule();
 }
 

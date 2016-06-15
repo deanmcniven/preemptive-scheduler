@@ -26,9 +26,6 @@ typedef struct {
 
 extern process_t *current_process;
 
-void isr_enter(void);
-void isr_exit(void);
-
 void scheduler_init(void);
 void add_process(process_fn_t process, void *stack_ptr);
 void init_stack(process_fn_t process, void *stack_ptr, process_t *pcb);
