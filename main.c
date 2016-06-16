@@ -9,6 +9,11 @@
 #include <avr/interrupt.h>
 #include "stdio.h"
 
+#ifdef GREEDY_TASK
+    #define F_CPU 16000000UL
+    #include <util/delay.h>
+#endif
+
 #include "preempt_sched.h"
 #include "display.h"
 
@@ -82,7 +87,11 @@ void task_two()
     while (1) {
         LED = (LED ^ LED0_MASK);
 
+#ifdef GREEDY_TASK
+        _delay_ms(1000);
+#else
         sleep(100);
+#endif
     }
 }
 
